@@ -15,8 +15,7 @@ const User = mongoose.model('User',new Schema({
         required:true
     },
     ConfirmPassword:{
-        type:String,
-        required:true
+        type:String
     },
     image:{
         type:String,
