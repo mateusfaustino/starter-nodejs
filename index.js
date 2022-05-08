@@ -9,7 +9,7 @@ dotenv.config()
 const app = express()
 app.use(express.json())
 
-app.use('/user', userRoutes)
+app.use('/users', userRoutes)
 app.get('/',(req,res)=>{
     res.json({message:"hello"})
 })

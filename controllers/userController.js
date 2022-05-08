@@ -1,5 +1,7 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
+const createUserToken = require('../helpers/createUserToken')
+const { findOne } = require('../models/User')
 class userController {
     static async index (req,res){
         const users = await User.find()
@@ -47,13 +49,49 @@ class userController {
         
         try {
             const newUser = await user.save()
-            res.status(201).json({
-                message:'usuário cadastrado com sucesso!',
-                newUser
-            })
+            await createUserToken(newUser,req,res)
+            
         } catch (error) {
             res.status(500).json({message:error})
         }
+    }
+
+    static async login(req, res){
+        const {email,password} = req.body
+        let emptyFelds = []
+        if(!password){emptyFelds.push('password')}
+        if(!email){emptyFelds.push('email')}
+        if(emptyFelds.length!=0){
+            
+            res.status(422).json({
+                message:"those fields can't be empty",
+                emptyFelds:emptyFelds
+            })
+            return
+        }
+
+        const user = await User.findOne({email:email})
+
+        if(!user){
+            res.status(442).json({
+                message:'User not found'
+            })
+            return
+        }
+
+        const checkPassword = await bcrypt.compare(password,user.password)
+        if(!checkPassword){
+            res.status(442).json({
+                message:'Invalid password.'
+            })
+            return
+        }
+
+        await createUserToken(user,req,res)
+
+
+
+
     }
 }
 
